@@ -2,6 +2,8 @@
 
 Load [General Transit Feed Specification (GTFS)](https://gtfs.org/) static data into MySQL and analyze it with SQL. The workflow is agency-agnostic: any transit provider that publishes a GTFS zip can be imported the same way. This repository is built around **TTC (Toronto Transit Commission)** data as the primary example.
 
+This project is **for education only**. It has no financial or commercial purpose—it is meant to help you learn GTFS, SQL, and transit data analysis.
+
 ## Data source
 
 TTC GTFS is downloaded from the [City of Toronto Open Data Portal](https://open.toronto.ca/). Thank you to the City of Toronto for making this dataset openly available.
@@ -11,7 +13,7 @@ TTC GTFS is downloaded from the [City of Toronto Open Data Portal](https://open.
 | File | Purpose |
 |------|---------|
 | `convert_format.ipynb` | Reads standard GTFS `.txt` files (`agency`, `calendar`, `routes`, `trips`, `stops`, `stop_times`, `shapes`, etc.) and exports them as `.csv` for import into MySQL. |
-| `Project.sql` | Example queries and analyses on the imported tables: route and stop counts, trip patterns, calendar handling, trip duration and length, hourly trip counts, and derived summary tables. |
+| `Project.sql` | SQL examples ordered from **simple to advanced**. They cover many concepts—filtering, aggregation, joins, subqueries, `GROUP BY` / `HAVING`, date conversion, derived tables, CTEs, and building summary tables—applied to routes, stops, trips, calendars, and shapes. |
 
 ## Getting started
 
@@ -28,7 +30,7 @@ TTC GTFS is downloaded from the [City of Toronto Open Data Portal](https://open.
    Create a database and load each GTFS file into tables with matching names (`routes`, `trips`, `stops`, `stop_times`, `calendar`, `calendar_dates`, `shapes`, `agency`, and any optional files your feed includes). Use MySQL Workbench, `LOAD DATA`, or your preferred import method.
 
 5. **Run analyses**  
-   Open `Project.sql` and run the queries against your database. Many examples use TTC-specific patterns (e.g. streetcar `route_type`, night routes, stops near York University); adapt filters and IDs for other agencies.
+   Open `Project.sql` and work through the examples in order—they start with basic counts and filters and progress to multi-table joins and production-style summary tables. Many examples use TTC-specific patterns (e.g. streetcar `route_type`, night routes, stops near York University); adapt filters and IDs for other agencies.
 
 ## GTFS tables used here
 
