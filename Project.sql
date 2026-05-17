@@ -306,6 +306,23 @@ GROUP BY block_id
 ORDER BY num_trips DESC
 LIMIT 5;
 
+#36--- Find routes wit no trips
+
+SELECT r.route_id
+FROM routes r
+LEFT JOIN trips t
+ON r.route_id = t.route_id
+WHERE t.trip_id IS NULL;
+
+
+#37--- Find missing stop_sequence
+
+SELECT t1.trip_id, t1.stop_sequence + 1 AS missing_seq
+FROM stop_times t1
+LEFT JOIN stop_times t2
+  ON t1.trip_id = t2.trip_id
+ AND t1.stop_sequence + 1 = t2.stop_sequence
+WHERE t2.trip_id IS NULL;
 
 
 #36--- Create a new table and find start time and end time of each trip
@@ -435,7 +452,7 @@ ON st.trip_id = bad_trips.trip_id;
 
 
 
-#----
+#---- Retrieve comprehensive trip-level statistics and attributes by joining the trips, stop_times, routes, and shapes tables.
 
 CREATE TABLE trip_information_final AS
 SELECT trip_final1.*, r.route_type,
@@ -489,7 +506,7 @@ ON trip_final1.shape_id = sh.shape_id;
 
 select * from trip_information_final;
 
-#-----
+#---- The above solution is advaced but it is not optimal. Convert it to a production-level using CTE logic
 CREATE TABLE trip_information_production AS
 
 WITH tripinfo AS (
@@ -587,5 +604,33 @@ JOIN shape_length sh
     ON te.shape_id = sh.shape_id;
 
 
-SELECT * FROM trip_information_production;
+
+#---- Identify trips that contain only a single stop, which may indicate incomplete or erroneous data.
+SELECT * FROM trip_information_production
+WHERE num_stops = 1;
+
+
+#--- Count trips per hour for each service_id:
+SELECT  service_id, FLOOR(arrival_time_sec / 3600) AS hour, 
+       COUNT(*) AS num_trips
+FROM trip_start_enriched
+GROUP BY service_id, hour
+ORDER BY service_id, hour ASC;
+
+#------
+WITH trip_sen AS (
+sELECT trip_id, COUNT(*) AS num_stops, MIN(stop_sequence) AS min_seq, MAX(stop_sequence) AS max_seq
+FROM stop_times
+GROUP BY trip_id),
+
+trip_stop AS (
+SELECT t.*, st.stop_id AS first_stop, sst.stop_id AS end_stop
+FROM trip_sen AS t
+JOIN stop_times AS st
+ON t.trip_id = st.trip_id AND t.min_seq = st.stop_sequence
+JOIN stop_times AS sst
+ON t.trip_id = sst.trip_id AND t.max_seq = sst.stop_sequence)
+SELECT * FROM trip_stop;
+
+
 
