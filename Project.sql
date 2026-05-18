@@ -633,4 +633,39 @@ ON t.trip_id = sst.trip_id AND t.max_seq = sst.stop_sequence)
 SELECT * FROM trip_stop;
 
 
+#----
+
+WITH route_info AS (
+    SELECT route_id, route_long_name, route_type
+    FROM routes
+    WHERE route_type = 3   -- only bus
+),
+
+trip_sig AS (
+    SELECT trip_id, direction_id, route_id
+    FROM trips
+    WHERE direction_id = 0  -- only one direction
+)
+
+SELECT trip_sig.*, route_info.route_long_name, route_info.route_type
+FROM trip_sig
+JOIN route_info 
+ON trip_sig.route_id = route_info.route_id;
+
+#-----
+WITH shape_info AS (
+SELECT shape_id, Max(shape_dist_traveled) As shape_length
+FROM shapes
+GROUP BY shape_id),
+
+trip_info AS (
+SELECT trip_id, shape_id
+FROM trips)
+
+SELECT trip_info.*, shape_info.shape_length AS trip_length
+FROM trip_info
+JOIN shape_info
+ON shape_info.shape_id = trip_info.shape_id;
+
+
 
