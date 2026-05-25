@@ -662,10 +662,15 @@ trip_info AS (
 SELECT trip_id, shape_id
 FROM trips)
 
-SELECT trip_info.*, shape_info.shape_length AS trip_length
+SELECT trip_info.*, ROUND(shape_info.shape_length) AS trip_length_m
 FROM trip_info
 JOIN shape_info
 ON shape_info.shape_id = trip_info.shape_id;
 
 
+#------ Find average trip duration for each route, direction, servic_id
+SELECT route_id, service_id, direction_id,  ROUND(AVG(trip_duration_minute),2) AS average_trip_duration
+FROM trip_information_production
+GROUP BY route_id, service_id, direction_id
+ORDER BY route_id,service_id, direction_id;
 
